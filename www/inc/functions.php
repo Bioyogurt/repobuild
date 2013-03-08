@@ -1,13 +1,18 @@
 <?php
 
-
 function dbc() {
     global $config, $dbh;
 
     try {
-        $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password']);
-        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $params = array (
+            PDO::ATTR_ERRMODE               => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE    => PDO::FETCH_ASSOC
+        );
+        if($config['db']['pool'])
+            $params[PDO::ATTR_PERSISTENT] = true;
+
+        $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
+
         register_shutdown_function('dbcc');
         return true;
     } catch(PDOException $e) {

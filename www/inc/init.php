@@ -14,3 +14,6 @@ session_start();
 include 'inc/config.php';
 include 'inc/functions.php';
 include 'inc/tpl.php';
+
+if(!in_array($config['db']['engine'], PDO::getAvailableDrivers()))
+    die('Not found <b>'.$config['db']['engine'].'</b> driver');
