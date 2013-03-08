@@ -4,10 +4,12 @@ include 'inc/init.php';
 dbc();
 
 if(isset($_POST['email']) && isset($_POST['password'])) {
-    $sql = 'SELECT * FROM users WHERE email = '.sqlesc($_POST['email']).' AND password = '.sqlesc(md5($_POST['password'])).' LIMIT 1';
-    $res = sql_query($sql);
-    if(mysql_num_rows($res)>0) {
-        $USER = mysql_fetch_assoc($res);
+    $sth = $dbh->prepare('SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1');
+    $sth->bindParam(':email', $_POST['email']);
+    $sth->bindParam(':password', md5($_POST['password']));
+    $sth->execute();
+    if($sth->rowCount() > 0) {
+        $USER = $sth->fetch();
         $_SESSION['user_id'] = $USER['id'];
         $_SESSION['password'] = $USER['password'];
         if(isset($_POST['remember'])) {

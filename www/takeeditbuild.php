@@ -8,21 +8,22 @@ load_vars();
 $id = $_GET['id'];
 $packet = $_GET['pack'];
 
-$sql = "SELECT * FROM repos WHERE user = '".$USER['id']."'";
-$res = sql_query($sql);
+$sth = $dbh->prepare("SELECT * FROM repos WHERE user = :userid");
+$sth->bindParam(':userid', $USER['id']);
+$sth->execute();
+
 $repos = array();
-while($row = mysql_fetch_assoc($res)) {
+while($row = $sth->fetch()) {
 	$repos[$row['id']] = $row;
 }
 
+$sql = 'SELECT * FROM builds WHERE id = ? AND packet = ? AND repo IN ('.implode(',', array_fill(0, count(array_keys($repos)), '?')).') LIMIT 1';
+$sth = $dbh->prepare($sql);
+$sth->execute(array_merge(array($id, $packet), array_keys($repos)));
 
-$sql = 'SELECT * FROM builds WHERE id = '.sqlesc($id).' AND '.sqlesc($packet).' AND repo IN ('.implode(',', array_keys($repos)).') LIMIT 1';
-$res = sql_query($sql);
-
-if(mysql_num_rows($res) > 0) {
-	$row = mysql_fetch_assoc($res);
+if($sth->rowCount() > 0) {
+	$row = $sth->fetch();
 	$opts = $_POST['opts'];
-	array_walk($opts, "sqlesc");
 	$options = array();
 	foreach($opts as $o) {
 			if($_opts[$o]['custom'] <> "") {
@@ -40,23 +41,37 @@ if(mysql_num_rows($res) > 0) {
 			if($value['custom'] <> "")
 				$options[$key] = $value['custom'];
 			else
-				$options[$key] = false;
+				$options[$key] = 'NULL';
 		}
 	}
 
 	$opts = array();
 	foreach($options as $key => $value) {
-		$opts[] = sqlesc($row['id']).", ".sqlesc($key).", ".($value === false ? "NULL" : sqlesc($value));
+                $opts[] = array($row['id']. $key, $value);
 	}
 	$key = md5($row['packet'].$repos[$row['repo']]['arch'].$repos[$row['repo']]['os'].serialize($options));
-	$sql = array();
-	$sql[] = "DELETE FROM builds_opts WHERE build = ".$row['id'];
-	$sql[] = "INSERT INTO builds_opts (`build`,`option`, `value`) VALUES (".implode("), (", $opts).")";
-	$sql[] = "UPDATE builds SET `key` = ".sqlesc($key)." WHERE id = ".$row['id'];
-	$res = sql_transact($sql);
-
-	header("Location: /repo.php?id=".$row['repo']);
-
+        $dbh->beginTransaction();
+        try {
+            $sth = $dbh->prepare("DELETE FROM builds_opts WHERE build = :buildid");
+            $sth->bindParam('buildid', $row['id']);
+            $sth->execute();
+            $sth = $dbh->prepare("INSERT INTO builds_opts (`build`,`option`, `value`) VALUES (:buildid,:option,:value)");
+            $sth->bindParam(':buildid', $row['id']);
+            foreach($options as $key => $value) {
+                $sth->bindParam(':option', $key);
+                $sth->bindParam(':value', $value);
+                $sth->execute();
+            }
+            $sth = $dbh->prepare("UPDATE builds SET `key` = :key WHERE id = :buildid");
+            $sth->bindParam(':key', $key);
+            $sth->bindParam(':buildid', $row['id']);
+            $sth->execute();
+            $dbh->commit();
+        } catch (PDOException $e) {
+            $dbh->rollBack();
+            tpl_err($e->getMessage());
+        }
+        header("Location: /repo.php?id=".$row['repo']);
 } else {
 	tpl_err("Err!");
 }

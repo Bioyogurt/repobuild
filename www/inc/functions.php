@@ -2,75 +2,27 @@
 
 
 function dbc() {
-    global $config;
+    global $config, $dbh;
 
-    if($config['mysql']['pool']) {
-        $c = mysql_pconnect($config['mysql']['host'], $config['mysql']['user'], $config['mysql']['pass']) or die(mysql_error());
-    } else {
-        $c = mysql_pconnect($config['mysql']['host'], $config['mysql']['user'], $config['mysql']['pass']) or die(mysql_error());
+    try {
+        $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password']);
+        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        register_shutdown_function('dbcc');
+        return true;
+    } catch(PDOException $e) {
+        echo $e->getMessage();
+        return false;
     }
-    mysql_select_db($config['mysql']['base']);
-    mysql_query('SET NAMES '.$config['mysql']['char']);
+ }
 
-    if(mysql_errno())
-        die(mysql_error());
-    else {
-        register_shutdown_function('mysql_close');
-        return $c;
-    }
-}
-
-
-function sql_query($sql) {
-    global $config, $dbg;
-
-    $s = timer();
-    $result = mysql_query($sql);
-    $e = timer();
-
-    if(!isset($dbg['db'])) {
-        $dbg['db']['count'] = 0;
-        $dbg['db']['time'] = 0;
-        $dbg['db']['queries'] = array();
-    }
-    $dbg['db']['count']++;
-    $dbg['db']['time'] += $e-$s;
-    $dbg['db']['queries'][] = array('time' => substr($e-$s, 0, 8), 'sql' => $sql);
-
-    return $result;
-}
-
-function sql_transact($sql) {
-	$rollback = false;
-
-	sql_query("BEGIN;");
-	foreach($sql as $query) {
-		sql_query($query);
-		if(mysql_errno()) {
-			$rollback = true;
-			break;
-		}
-	}
-
-	if($rollback) {
-		sql_query("ROLLBACK;");
-		return false;
-	} else
-		sql_query("COMMIT;");
-
-	return true;
-}
-
-function sqlesc($value, $esc = true) {
-    $value = mysql_real_escape_string($value);
-    if ($esc) {
-        $value = "'".$value."'";
-    }
-   return $value;
+function dbcc() {
+    global $dbh;
+    $dbh = NULL;
 }
 
 function auth($required = true) {
-    global $USER;
+    global $USER, $dbh;
 
     if(isset($_SESSION['user_id']) && isset($_SESSION['password'])) {
         $login = $_SESSION['user_id'];
@@ -81,10 +33,13 @@ function auth($required = true) {
     }
 
     if(isset($login) && isset($password)) {
-        $sql = 'SELECT * FROM users WHERE id = '.sqlesc($login).' AND password = '.sqlesc($password).' LIMIT 1';
-        $res = sql_query($sql);
-        if(mysql_num_rows($res) > 0) {
-            $USER = mysql_fetch_assoc($res);
+        $sth = $dbh->prepare('SELECT * FROM users WHERE id = :login AND password = :password LIMIT 1');
+        $sth->bindParam(':login', $login);
+        $sth->bindParam(':password', $password);
+        $sth->execute();
+
+        if($sth->rowCount() > 0) {
+            $USER = $sth->fetch();
         } else {
             header('Location: /login.php');
         }
@@ -104,33 +59,29 @@ function logged() {
 }
 
 function load_vars() {
-    global $_os, $_arch, $_opts, $_pkgs;
+    global $_os, $_arch, $_opts, $_pkgs, $dbh;
 
-    $sql = "SELECT * FROM os;";
-    $res = sql_query($sql);
+    $sth = $dbh->query("SELECT * FROM os");
     $_os = array();
-    while($row = mysql_fetch_assoc($res)) {
+    while($row = $sth->fetch()) {
         $_os[$row['id']] = $row;
     }
 
-    $sql = "SELECT * FROM archs;";
-    $res = sql_query($sql);
+    $sth = $dbh->query("SELECT * FROM archs");
     $_arch = array();
-    while($row = mysql_fetch_assoc($res)) {
+    while($row = $sth->fetch()) {
         $_arch[$row['id']] = $row;
     }
 
-    $sql = "SELECT * FROM options;";
-    $res = sql_query($sql);
+    $sth = $dbh->query("SELECT * FROM options");
     $_opts = array();
-    while($row = mysql_fetch_assoc($res)) {
+    while($row = $sth->fetch()) {
         $_opts[$row['id']] = $row;
     }
 
-    $sql = "SELECT * FROM packets;";
-    $res = sql_query($sql);
+    $sth = $dbh->query("SELECT * FROM packets");
     $_pkgs = array();
-    while($row = mysql_fetch_assoc($res)) {
+    while($row = $sth->fetch()) {
         $_pkgs[$row['id']] = $row;
     }
 }

@@ -8,14 +8,17 @@ load_vars();
 $page['title'] = 'Repositories on Repobuild';
 $content = "";
 
-$sql = "SELECT * FROM repos WHERE user = ".sqlesc($USER['id']);
-$res = sql_query($sql);
-if(mysql_num_rows($res) > 0) {
+$sth = $dbh->prepare("SELECT * FROM repos WHERE user = :userid");
+$sth->bindParam(':userid', $USER['id']);
+$sth->execute();
+if($sth->rowCount() > 0) {
     $content .= "<table class=\"table table-hover\">";
     $content .= "<thead><tr><th></th><th>name</th><th>os</th><th>arch</th><th>url</th></tr></thead><tbody>";
-    while($row = mysql_fetch_assoc($res)) {
-		$sql = "SELECT COUNT(*) FROM builds WHERE repo = ".sqlesc($row['id']);
-		$cnt = mysql_fetch_row(sql_query($sql));
+    while($row = $sth->fetch()) {
+		$sth2 = $dbh->prepare("SELECT COUNT(*) FROM builds WHERE repo = :repoid");
+                $sth2->bindParam(':repoid', $row['id']);
+                $sth2->execute();
+                $cnt = $sth2->fetchColumn();
         $content .= "<tr>";
         $content .= '<td width="1%"><div class="btn-group">
                             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
@@ -26,7 +29,7 @@ if(mysql_num_rows($res) > 0) {
         $content .= "<td>".$_os[$row['os']]['display_name']."</td>";
         $content .= "<td>".$_arch[$row['arch']]['display_name']."</td>";
 
-		if($cnt[0] == 0)
+		if($cnt == 0)
 			$content .= "<td><span class=\"text-error\">(please, add packets to repo)</span></td>";
         elseif(is_dir("../../share/repos/".$row['hash']))
             $content .= "<td><a href='http://repo.repobuild.com/".$row['hash']."' target='_blank'>http://repo.repobuild.com/".$row['hash']."</a></td>";

@@ -5,10 +5,11 @@ dbc();
 auth(false);
 
 if(isset($USER['id'])) {
-	$sql = "SELECT COUNT(*) FROM repos WHERE user = ".sqlesc($USER['id']);
-	$res = sql_query($sql);
-	$cnt = mysql_fetch_row($res);
-	if($cnt[0] > 0) {
+	$sth = $dbh->prepare("SELECT COUNT(*) FROM repos WHERE user = :userid");
+        $sth->bindParam(':userid', $USER['id']);
+        $sth->execute();
+        $cnt = $sth->fetchColumn();
+	if($cnt > 0) {
 		header("Location: repos.php");
 		exit(0);
 	}

@@ -15,3 +15,10 @@ $config['mysql']['char'] = 'utf8';
 $config['main']['repos_path'] = '/home/repobuild/share/repos/';
 $config['main']['builds_path'] = '/home/repobuild/share/builds/';
 $config['main']['src_path'] = '/home/repobuild/share/src/';
+
+$config['db']['engine']     = 'mysql';
+$config['db']['hostname']   = 'localhost';
+$config['db']['database']   = 'repobuild';
+$config['db']['charset']    = 'utf8';
+$config['db']['username']   = 'repobuild';
+$config['db']['password']   = 'aihaiP8o';

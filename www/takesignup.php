@@ -19,32 +19,31 @@ if(v_str($_POST['username']) && v_str($_POST['password']) && v_str($_POST['email
     if(!filter_var($email, FILTER_VALIDATE_EMAIL))
         tpl_err("Указан не корректный email.");
 
-    $sql = "SELECT COUNT(*) FROM users WHERE username = ".sqlesc($username);
-    $res = sql_query($sql);
-    $count = mysql_fetch_row($res);
-    if($count[0] > 0)
+    $sth = $dbh->prepare("SELECT COUNT(*) FROM users WHERE username = :username");
+    $sth->bindParam(':username', $username);
+    $sth->execute();
+    if($sth->fetchColumn() > 0)
         tpl_err("Пользователь с именем <b>".$username."</b> уже существует");
 
-    $sql = "SELECT COUNT(*) FROM users WHERE email = ".sqlesc($email);
-    $res = sql_query($sql);
-    $count = mysql_fetch_row($res);
-    if($count[0] > 0)
+    $sth = $dbh->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+    $sth->bindParam(':email', $email);
+    $sth->execute();
+    if($sth->fetchColumn() > 0)
         tpl_err("Пользователь с таким email уже зарегистрирован");
 
 
-    $sql = "INSERT into users (username, password,email) VALUES (".sqlesc($username).", md5(".sqlesc($password)."), ".sqlesc($email).")";
-    sql_query($sql);
-    if(mysql_errno())
+    try {
+        $sth = $dbh->prepare("INSERT INTO users (username, password,email) VALUES (:username, :password, :email)");
+        $sth->bindParam(':username', $username);
+        $sth->bindParam(':password', md5($password));
+        $sth->bindParam(':email', $email);
+        $sth->execute();
+    } catch (PDOException $e) {
         tpl_err(mysql_error());
-    else {
-        header('Location: /login.php');
-        exit();
     }
-
+    
+    header('Location: /login.php');
+    exit();
 } else {
     tpl_err("Не все поля заполнены!");
 }
-
-tpl_head();
-echo "Вы успешно зарегистрировались";
-tpl_foot();

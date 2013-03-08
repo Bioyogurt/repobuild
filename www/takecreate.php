@@ -17,23 +17,23 @@ if(!isset($_os[$os]))
 if(!isset($_arch[$arch]))
     tpl_err("Not valid arch!");
 
-$sql = "SELECT COUNT(*) FROM repos WHERE hash = ".sqlesc(md5(strtolower($USER['id'].$title))).";";
-$res = sql_query($sql);
-$cnt = mysql_fetch_row($res);
-if($cnt[0] > 0)
+$sth = $dbh->prepare("SELECT COUNT(*) FROM repos WHERE hash = :hash");
+$sth->bindParam(':hash', md5(strtolower($USER['id'].$title)));
+$sth->execute();
+
+if($sth->fetchColumn() > 0)
     tpl_err("Repo with this name already exists");
 
-$sql = "INSERT INTO repos (user, os, arch, name, hash) VALUES (".sqlesc($USER['id']).", ".sqlesc($os).", ".sqlesc($arch).", ".sqlesc($title).", ".sqlesc(md5(strtolower($USER['id'].$title))).");";
-$res = sql_query($sql);
-
-if(mysql_errno())
-    tpl_err(mysql_error());
-
-
-
+try {
+    $sth = $dbh->prepare("INSERT INTO repos (user, os, arch, name, hash) VALUES (:userid, :os, :arch, :title, :hash)");
+    $sth->bindParam(':userid', $USER['id']);
+    $sth->bindParam(':os', $os);
+    $sth->bindParam(':arch', $arch);
+    $sth->bindParam(':title', $title);
+    $sth->bindParam(':hash', md5(strtolower($USER['id'].$title)));
+    $sth->execute();
+} catch (PDOException $e) {
+    tpl_err($e->getMessage());
+}
 header("Location: /repos.php");
-/*
-tpl_head();
-echo "Created ".$title."!";
-tpl_foot();
-*/
+    

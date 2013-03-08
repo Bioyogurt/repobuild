@@ -11,20 +11,24 @@ if(!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 	tpl_err("Error!");
 }
 $id = $_GET['id'];
-$sql = "SELECT * FROM repos WHERE user = ".sqlesc($USER['id'])." AND id = ".sqlesc($id);
-$res = sql_query($sql);
-if(mysql_num_rows($res) == 0) {
+$sth = $dbh->prepare("SELECT * FROM repos WHERE user = :userid AND id = :repoid");
+$sth->bindParam(':userid', $USER['id']);
+$sth->bindParam(':repoid', $id);
+$sth->execute();
+
+if($sth->rowCount() == 0) {
 	tpl_err("Error!");
 }
 
-$sql = "SELECT * FROM builds WHERE repo = ".sqlesc($id);
-$res = sql_query($sql);
+$sth = $dbh->prepare("SELECT * FROM builds WHERE repo = :repoid");
+$sth->bindParam(':repoid', $id);
+$sth->execute();
 
 // List packets
-if(mysql_num_rows($res) > 0) {
+if($sth->rowCount() > 0) {
     $content .= "<table class=\"table table-hover\">";
     $content .= "<thead><tr><th></th><th>Packets</th><th></th></thead><tbody>";
-    while($row = mysql_fetch_assoc($res)) {
+    while($row = $sth->fetch()) {
         $content .= "<tr>";
         $content .= '<td width="1%"><div class="btn-group">
                             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
@@ -40,11 +44,12 @@ if(mysql_num_rows($res) > 0) {
 
         $content .= '</td><td width="1%"><button id="b'.$row['packet'].'" type="button" class="btn" data-toggle="button"><i class="icon-angle-down"></i></button></td>';
 
-		$sql2 = "SELECT * FROM builds_opts WHERE build = ".sqlesc($row['id']);
-		$res2 = sql_query($sql2);
+		$sth2 = $dbh->prepare("SELECT * FROM builds_opts WHERE build = :buildid");
+                $sth2->bindParam(':buildid', $row['id']);
+		$sth2->execute();
 
 		$opts = array();
-		while($row2 = mysql_fetch_assoc($res2)) {
+		while($row2 = $sth2->fetch()) {
 			if($row2['value'] <> "")
 				$opts[] = $_opts[$row2['option']]['name']."=".$row2['value'];
 			else
@@ -113,12 +118,13 @@ $content .= '<div id="addpack" class="modal hide fade" tabindex="-1" role="dialo
 				</div>
 				<div class="modal-body">';
 
-$sql = "SELECT id, display_name, version FROM packets WHERE id NOT IN (SELECT packet FROM builds WHERE repo = ".sqlesc($id).")";
-$res = sql_query($sql);
-if(mysql_num_rows($res) > 0) {
+$sth = $dbh->prepare("SELECT id, display_name, version FROM packets WHERE id NOT IN (SELECT packet FROM builds WHERE repo = :repoid)");
+$sth->bindParam(':repoid', $id);
+$sth->execute();
+if($sth->rowCount() > 0) {
 	$content .= '<form id="addfrm" method="POST" action="addpack.php?repo='.htmlspecialchars($id).'">
 					<select name="packet">';
-	while($row = mysql_fetch_assoc($res)) {
+	while($row = $sth->fetch()) {
 		$content .= '<option value="'.$row['id'].'">'.htmlspecialchars($row['display_name']).' '.$row['version'].'</option>';
 	}
 
