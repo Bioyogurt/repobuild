@@ -49,7 +49,7 @@ if($sth->rowCount() > 0) {
 	foreach($options as $key => $value) {
                 $opts[] = array($row['id']. $key, $value);
 	}
-	$key = md5($row['packet'].$repos[$row['repo']]['arch'].$repos[$row['repo']]['os'].serialize($options));
+	$hash = md5($row['packet'].$repos[$row['repo']]['arch'].$repos[$row['repo']]['os'].serialize($options));
         $dbh->beginTransaction();
         try {
             $sth = $dbh->prepare("DELETE FROM builds_opts WHERE build = :buildid");
@@ -63,7 +63,7 @@ if($sth->rowCount() > 0) {
                 $sth->execute();
             }
             $sth = $dbh->prepare("UPDATE builds SET `key` = :key WHERE id = :buildid");
-            $sth->bindParam(':key', $key);
+            $sth->bindParam(':key', $hash);
             $sth->bindParam(':buildid', $row['id']);
             $sth->execute();
             $dbh->commit();
