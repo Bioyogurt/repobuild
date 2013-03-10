@@ -8,10 +8,12 @@ function dbc() {
             PDO::ATTR_ERRMODE               => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE    => PDO::FETCH_ASSOC
         );
-        if($config['db']['pool'])
+        if($config['db']['pool'] && !$config['main']['debug'])
             $params[PDO::ATTR_PERSISTENT] = true;
-
-        $dbh = new PDOTester($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
+        if($config['main']['debug'])
+            $dbh = new PDOTester($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
+        else
+            $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
         
         register_shutdown_function('dbcc');
         return true;

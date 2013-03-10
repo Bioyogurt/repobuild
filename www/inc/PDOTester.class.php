@@ -15,7 +15,6 @@ class PDOStatementTester extends PDOStatement {
 
     public function execute() {
         global $dbg;
-        
         $s = timer();
         parent::execute();
         $t = timer() - $s;
