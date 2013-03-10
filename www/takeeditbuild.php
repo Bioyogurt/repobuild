@@ -37,7 +37,7 @@ if($sth->rowCount() > 0) {
 	}
 
 	foreach($_opts as $key => $value) {
-		if($value['need'] == "yes" && !in_array($key, array_keys($options))) {
+		if($value['packet'] == $packet && $value['need'] == "yes" && !in_array($key, array_keys($options))) {
 			if($value['custom'] <> "")
 				$options[$key] = $value['custom'];
 			else

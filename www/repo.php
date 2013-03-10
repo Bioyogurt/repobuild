@@ -28,6 +28,7 @@ $sth->execute();
 if($sth->rowCount() > 0) {
     $content .= "<table class=\"table table-hover\">";
     $content .= "<thead><tr><th></th><th>Packets</th><th></th></thead><tbody>";
+    $modals = "";
     while($row = $sth->fetch()) {
         $content .= "<tr>";
         $content .= '<td width="1%"><div class="btn-group">
@@ -60,7 +61,7 @@ if($sth->rowCount() > 0) {
 
 		$content .= '<tr id="p'.$row['packet'].'" style="display: none"><td></td><td colspan=2>'.implode("<br />\n", $opts).'</td></tr>';
 
-		$modals = '<script>$("#b'.$row['packet'].'").click(function () {$("#p'.$row['packet'].'").toggle();});</script>';
+		$modals .= '<script>$("#b'.$row['packet'].'").click(function () {$("#p'.$row['packet'].'").toggle();});</script>';
 		$modals .= '<div id="m'.$row['packet'].'" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
@@ -68,8 +69,9 @@ if($sth->rowCount() > 0) {
 						</div>
 						<div class="modal-body">';
 
-		$modals .= '<form id="f'.$row['packet'].'" method="POST" action="/takeeditbuild.php?id='.$row['id'].'&pack='.$row['packet'].'"><table class="table">';
+		$modals .= '<form id="f'.$row['packet'].'" method="POST" action="/takeeditbuild.php?id='.$row['id'].'&amp;pack='.$row['packet'].'"><table class="table">';
 		foreach($_opts as $o) {
+                    if($o['packet'] == $row['packet']) {
 			$modals .= '<tr><td><input id="o'.$o['id'].'" name="opts[]" value="'.$o['id'].'" type="checkbox"';
 			if(isset($opt[$o['id']]))
 				$modals .= ' checked="checked"';
@@ -88,14 +90,15 @@ if($sth->rowCount() > 0) {
 				$modals .= $o['custom'];
 			}
 			$modals .= "</tr>\n";
+                    }
 		}
-		$modals .= '</table>';
+		$modals .= '</table></form>';
 		$modals .= '</div>
 						<div class="modal-footer">
 							<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-							<button id="s'.$row['packet'].'"class="btn btn-primary">Save</button>
+							<button id="s'.$row['packet'].'" class="btn btn-primary">Save</button>
 						</div>
-					</div></form>';
+					</div>';
 		$modals .= '<script>
 						$("#s'.$row['packet'].'").click(function() {
 							$("#f'.$row['packet'].'").submit();
