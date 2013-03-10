@@ -24,6 +24,7 @@ function dbc() {
 function dbcc() {
     global $dbh, $dbg;
     $dbh = NULL;
+    $dbg['time'] = substr(timer()-$dbg['time'], 0, 8);
     print_r($dbg);
 }
 
