@@ -4,6 +4,7 @@
 
       <footer>
         <p>{%copy%}</p>
+        {%dbg%}
       </footer>
 
     </div>

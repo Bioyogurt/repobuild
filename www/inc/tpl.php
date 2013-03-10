@@ -22,8 +22,15 @@ function tpl_head($page=array()) {
 }
 
 function tpl_foot($page=array()) {
-    global $config;
+    global $config, $dbg;
     $page['copy'] = '&copy; '.$config['main']['sitename'].' '.date('Y');
+    
+    if($config['main']['debug']) {
+        $dbg['time']['all'] = timer() - $dbg['time']['all'];
+        $dbg['time']['queries_percent'] = $dbg['time']['queries']*100/$dbg['time']['all'];
+        $page['dbg'] = '<b>Debug:</b><pre style="background-color: #CCCCCC; font-size: 13px; line-height: 13px;">'.print_r($dbg, true).'</pre>';
+    } else
+        $page['dbg'] = "";
     $content = tpl_load('foot', $page);
     echo $content;
 }

@@ -11,8 +11,8 @@ function dbc() {
         if($config['db']['pool'])
             $params[PDO::ATTR_PERSISTENT] = true;
 
-        $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
-
+        $dbh = new PDOTester($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
+        
         register_shutdown_function('dbcc');
         return true;
     } catch(PDOException $e) {
@@ -24,8 +24,6 @@ function dbc() {
 function dbcc() {
     global $dbh, $dbg;
     $dbh = NULL;
-    $dbg['time'] = substr(timer()-$dbg['time'], 0, 8);
-    print_r($dbg);
 }
 
 function auth($required = true) {
