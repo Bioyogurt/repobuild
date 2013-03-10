@@ -22,8 +22,9 @@ function dbc() {
  }
 
 function dbcc() {
-    global $dbh;
+    global $dbh, $dbg;
     $dbh = NULL;
+    print_r($dbg);
 }
 
 function auth($required = true) {

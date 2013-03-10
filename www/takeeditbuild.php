@@ -32,7 +32,7 @@ if($sth->rowCount() > 0) {
 				else
 					$options[$o] = $_opts[$o]['custom'];
 			} else {
-				$options[$o] = false;
+				$options[$o] = null;
 			}
 	}
 
@@ -41,7 +41,7 @@ if($sth->rowCount() > 0) {
 			if($value['custom'] <> "")
 				$options[$key] = $value['custom'];
 			else
-				$options[$key] = 'NULL';
+				$options[$key] = null;
 		}
 	}
 

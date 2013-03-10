@@ -15,5 +15,9 @@ include 'inc/config.php';
 include 'inc/functions.php';
 include 'inc/tpl.php';
 
+function __autoload($class_name) {
+    include 'inc/'.$class_name . '.class.php';
+}
+
 if(!in_array($config['db']['engine'], PDO::getAvailableDrivers()))
     die('Not found <b>'.$config['db']['engine'].'</b> driver');
