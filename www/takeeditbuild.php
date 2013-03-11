@@ -19,7 +19,12 @@ while($row = $sth->fetch()) {
 
 $sql = 'SELECT * FROM builds WHERE id = ? AND packet = ? AND repo IN ('.implode(',', array_fill(0, count(array_keys($repos)), '?')).') LIMIT 1';
 $sth = $dbh->prepare($sql);
-$sth->execute(array_merge(array($id, $packet), array_keys($repos)));
+$i=1;
+foreach(array_merge(array($id, $packet), array_keys($repos)) as $val) {
+	bindValue($i, $val);
+	$i++;
+}
+$sth->execute();
 
 if($sth->rowCount() > 0) {
 	$row = $sth->fetch();
