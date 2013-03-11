@@ -17,7 +17,7 @@ while($row = $sth->fetch()) {
 	$repos[$row['id']] = $row;
 }
 
-$sql = 'SELECT * FROM builds WHERE id = ? AND packet = ? AND repo IN ('.implode(',', array_fill(0, count(array_keys($repos)), '?')).') LIMIT 1';
+$sql = 'SELECT * FROM builds WHERE id = ? AND packet = ? AND repo IN ('.implode(', ', array_fill(0, count(array_keys($repos)), '?')).') LIMIT 1';
 $sth = $dbh->prepare($sql);
 $i=1;
 foreach(array_merge(array($id, $packet), array_keys($repos)) as $val) {
