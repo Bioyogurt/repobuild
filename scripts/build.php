@@ -1,7 +1,7 @@
 #!/usr/bin/php
 
 <?php
-// test deploy
+
 exec("cd /home/repobuild");
 exec("ps ax | grep ".$_SERVER['PHP_SELF']." | grep -v grep | wc -l", $out);
 if($out[0] != 1)
