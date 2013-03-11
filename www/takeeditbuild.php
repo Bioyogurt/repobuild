@@ -21,7 +21,7 @@ $sql = 'SELECT * FROM builds WHERE id = ? AND packet = ? AND repo IN ('.implode(
 $sth = $dbh->prepare($sql);
 $i=1;
 foreach(array_merge(array($id, $packet), array_keys($repos)) as $val) {
-	$sth->bindValue($i, $val);
+	$sth->bindParam($i, $val);
 	$i++;
 }
 $sth->execute();
