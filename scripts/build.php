@@ -89,7 +89,7 @@ if($sth->rowCount() > 0) {
         unset($out[0]);
         foreach($out as $o) {
             $o = explode(":", $o);
-            $sth2 = $sdb->prepare("UPDATE builds SET version = :version WHERE packet IN (SELECT id FROM packets WHERE name = :name)");
+            $sth2 = $sdh->prepare("UPDATE builds SET version = :version WHERE packet IN (SELECT id FROM packets WHERE name = :name)");
             $sth2->bindParam(':version', $o[1]);
             $sth2->bindParam(':name', $o[0]);
             try {
