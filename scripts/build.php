@@ -10,7 +10,7 @@ if($out[0] != 1)
 include('../www/inc/config.php');
 include('../www/inc/functions.php');
 function __autoload($class_name) {
-    include '.../www/inc/'.$class_name . '.class.php';
+    include '../www/inc/'.$class_name . '.class.php';
 }
 dbc();
 
@@ -33,7 +33,6 @@ foreach($out as $o) {
         exit(1);
     }
 }
-
 
 /// Build packets
 $sth = $dbh->prepare("SELECT DISTINCT (SELECT name FROM os WHERE id = repos.os) AS os, (SELECT name FROM archs WHERE id = repos.arch) AS arch, (SELECT name FROM packets WHERE id = builds.packet) AS name, (SELECT GROUP_CONCAT(IF(`value` IS NOT NULL, CONCAT((SELECT name FROM options WHERE id = `option`), '=', `value`), (SELECT name FROM options WHERE id = `option`)) separator ' ') FROM builds_opts WHERE build = builds.id) AS opts, `key` FROM builds, repos WHERE repos.id = builds.repo AND `key` IS NOT NULL AND builded = 'no';");
