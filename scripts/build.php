@@ -27,7 +27,7 @@ foreach($out as $o) {
         $sth->execute();
     } catch(PDOException $e) {
         echo $e->getMessage();
-        exit 1;
+        exit(1);
     }
 }
 
@@ -84,7 +84,7 @@ if($sth->rowCount() > 0) {
                 $sth2->execute();
             } catch(PDOException $e) {
                echo $e->getMessage();
-                exit 1;
+               exit(1);
             }
         }
 
@@ -99,7 +99,7 @@ if($sth->rowCount() > 0) {
             $sth2->execute();
         } catch(PDOException $e) {
             echo $e->getMessage();
-            exit 1;
+            exit(1);
         }
     }
 } else {
