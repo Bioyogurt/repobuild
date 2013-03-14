@@ -137,6 +137,8 @@ if($sth->rowCount() > 0) {
 
 foreach($builds as $build) {
     $dir = $config['main']['builds_path'].$build;
-    if(is_dir($dir))
-        exec('rm -rf '.$dir);
+    if(is_dir($dir)) {
+//        exec('rm -rf '.$dir);
+        echo $dir."\n";
+    }
 }
