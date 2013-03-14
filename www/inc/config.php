@@ -7,7 +7,7 @@ $config['main']['siteurl']      = 'http://repobuild.com';
 $config['main']['debug']        = true;
 
 $config['db']['engine']         = 'mysql';
-$config['db']['hostname']       = '192.168.122.1';
+$config['db']['hostname']       = 'mysql';
 $config['db']['database']       = 'repobuild';
 $config['db']['charset']        = 'utf8';
 $config['db']['username']       = 'repobuild';
