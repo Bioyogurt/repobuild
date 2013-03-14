@@ -94,7 +94,7 @@ if($sth->rowCount() > 0) {
             exec('createrepo --update '.$repopath);
 
         $sth2 = $dbh->prepare("UPDATE builds SET builded = 'yes' WHERE `key` = :key");
-        $sth2->bindParam(':key', $row['build'])
+        $sth2->bindParam(':key', $row['build']);
         try {
             $sth2->execute();
         } catch(PDOException $e) {
