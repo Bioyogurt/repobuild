@@ -20,7 +20,7 @@ exec("rpm -qp --queryformat '%{NAME}:%{VERSION}\n' ".$src_path."*.rpm", $out);
 unset($out[0]);
 foreach($out as $o) {
     $o = explode(":", $o);
-    $sth = $dbh->prepare("UPDATE packets SET version = :version WHERE name = :name";
+    $sth = $dbh->prepare("UPDATE packets SET version = :version WHERE name = :name");
     $sth->bindParam(':version', $o[1]);
     $sth->bindParam(':name', $o[0]);
     try {
