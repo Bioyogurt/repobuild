@@ -118,3 +118,12 @@ if($sth->rowCount() > 0) {
 } else {
     echo "No build for repos\n";
 }
+
+//remove unused builds
+$builds = array();
+foreach (glob($config['main']['builds_dir']) as $filename) {
+    if(is_dir($filename))
+        $builds[] = $filename;
+}
+
+print_r($builds);
