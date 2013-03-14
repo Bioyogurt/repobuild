@@ -21,6 +21,7 @@ try {
         PDO::ATTR_PERSISTENT            => true
     );
     $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
+    $dbh->query("SET group_concat_max_len := @@max_allowed_packet");
     register_shutdown_function('dbcc');
 } catch(PDOException $e) {
     echo $e->getMessage();
