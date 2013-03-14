@@ -42,6 +42,7 @@ foreach($out as $o) {
         $sth2->bindParam(':version', $o[1]);
         $sth2->bindParam(':name', $o[0]);
         $sth2->execute();
+        
     } catch(PDOException $e) {
         echo $e->getMessage();
         exit(1);
