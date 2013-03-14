@@ -126,4 +126,13 @@ foreach (glob($config['main']['builds_path']."*") as $filename) {
         $builds[] = end(explode('/', $filename));
 }
 
+$sth = $dbh->prepare('SELECT `key` FROM builds');
+$sth->execute();
+
+if($sth->rowCount() > 0) {
+    while($build = $sth->fetch()) {
+        unset($builds[$build['key']]);
+    }
+}
+
 print_r($builds);
