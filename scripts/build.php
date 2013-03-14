@@ -121,7 +121,7 @@ if($sth->rowCount() > 0) {
 
 //remove unused builds
 $builds = array();
-foreach (glob($config['main']['builds_path']) as $filename) {
+foreach (glob($config['main']['builds_path']."/*") as $filename) {
     if(is_dir($filename))
         $builds[] = $filename;
 }
