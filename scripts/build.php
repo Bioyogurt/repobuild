@@ -7,15 +7,28 @@ exec("ps ax | grep ".$_SERVER['PHP_SELF']." | grep -v grep | wc -l", $out);
 if($out[0] != 1)
     die('Script already running...');
 
-require_once('../www/inc/init.php');
-dbc();
+require_once('../www/inc/config.php');
 
-$builds_path = '/home/repobuild/share/builds/';
-$repos_path = '/home/repobuild/share/repos/';
-$src_path = '/home/repobuild/share/src/';
+function dbcc() {
+    global $dbh;
+    $dbh = null;
+}
+
+try {
+    $params = array (
+        PDO::ATTR_ERRMODE               => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE    => PDO::FETCH_ASSOC,
+        PDO::ATTR_PERSISTENT            => true
+    );
+    $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
+    register_shutdown_function('dbcc');
+} catch(PDOException $e) {
+    echo $e->getMessage();
+    exit(1);
+}
 
 /// Update packets versions
-exec("rpm -qp --queryformat '%{NAME}:%{VERSION}\n' ".$src_path."*.rpm", $out);
+exec("rpm -qp --queryformat '%{NAME}:%{VERSION}\n' ".$config['main']['src_path']."*.rpm", $out);
 unset($out[0]);
 foreach($out as $o) {
     $o = explode(":", $o);
@@ -37,7 +50,7 @@ $sth->execute();
 if($sth->rowCount() > 0) {
     $i = 0;
     while($row = $sth->fetch()) {
-        $exec = 'mock -r '.$row['os'].'-'.$row['arch'].' --define="'.$row['name'].'_param '.$row['opts'].'" '.$src_path.$row['name'].'-*.src.rpm';
+        $exec = 'mock -r '.$row['os'].'-'.$row['arch'].' --define="'.$row['name'].'_param '.$row['opts'].'" '.$config['main']['src_path'].$row['name'].'-*.src.rpm';
         echo "\n\n\n".$i."\t".$exec."\n\n";
         exec($exec, $out, $status);
         if($status !== 0) {
@@ -47,9 +60,9 @@ if($sth->rowCount() > 0) {
         $target_path = '/var/lib/mock/'.$row['os'].'-'.$row['arch'].'/result/';
         exec('rm '.$target_path.'*debuginfo*');
         exec('rm '.$target_path.'*.src.rpm');
-        if(!is_dir($builds_path.$row['key']))
-            mkdir($builds_path.$row['key']);
-        exec('mv '.$target_path.'*.rpm '.$builds_path.$row['key']);
+        if(!is_dir($config['main']['builds_path'].$row['key']))
+            mkdir($config['main']['builds_path'].$row['key']);
+        exec('mv '.$target_path.'*.rpm '.$config['main']['builds_path'].$row['key']);
         $i++;
     }
 } else {
@@ -63,11 +76,11 @@ $sth->execute();
 
 if($sth->rowCount() > 0) {
     while($row = $sth->fetch()) {
-        $repopath = $repos_path.$row['repo'];
+        $repopath = $config['main']['repos_path'].$row['repo'];
         if(!is_dir($repopath))
             mkdir($repopath);
 
-        exec('cp '.$builds_path.$row['build'].'/*.rpm '.$repopath.'/');
+        exec('cp '.$config['main']['builds_path'].$row['build'].'/*.rpm '.$repopath.'/');
 
 
         // Update packets versions
