@@ -123,7 +123,7 @@ if($sth->rowCount() > 0) {
 $builds = array();
 foreach (glob($config['main']['builds_path']."*") as $filename) {
     if(is_dir($filename))
-        $builds[] = end(explode('/', $filename));
+        $builds[end(explode('/', $filename))] = $filename;
 }
 
 $sth = $dbh->prepare('SELECT `key` FROM builds');
@@ -135,10 +135,9 @@ if($sth->rowCount() > 0) {
     }
 }
 
-foreach($builds as $build) {
-    $dir = $config['main']['builds_path'].$build;
+foreach($builds as $key => $dir) {
     if(is_dir($dir)) {
-//        exec('rm -rf '.$dir);
-        echo $dir."\n";
+        echo 'Deleting '.$dir."\n";
+        exec('rm -rf '.$dir);
     }
 }
