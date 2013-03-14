@@ -56,7 +56,6 @@ $sth->execute();
 if($sth->rowCount() > 0) {
     $i = 0;
     while($row = $sth->fetch()) {
-        
         $exec = 'mock -r '.$row['os'].'-'.$row['arch'].' --define="'.$row['name'].'_param '.$row['opts'].'" '.$config['main']['src_path'].$row['name'].'-*.src.rpm';
         echo "\n\n\n".$i."\t".$exec."\n\n";
         exec($exec, $out, $status);
