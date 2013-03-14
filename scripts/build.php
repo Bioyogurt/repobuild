@@ -9,6 +9,9 @@ if($out[0] != 1)
 
 include('../www/inc/config.php');
 include('../www/inc/functions.php');
+function __autoload($class_name) {
+    include '.../www/inc/'.$class_name . '.class.php';
+}
 dbc();
 
 $builds_path = '/home/repobuild/share/builds/';
