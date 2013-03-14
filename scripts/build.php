@@ -7,11 +7,7 @@ exec("ps ax | grep ".$_SERVER['PHP_SELF']." | grep -v grep | wc -l", $out);
 if($out[0] != 1)
     die('Script already running...');
 
-include('../www/inc/config.php');
-include('../www/inc/functions.php');
-function __autoload($class_name) {
-    include '../www/inc/'.$class_name . '.class.php';
-}
+require_once('../www/inc/init.php');
 dbc();
 
 $builds_path = '/home/repobuild/share/builds/';
