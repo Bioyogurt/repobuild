@@ -42,7 +42,6 @@ foreach($out as $o) {
         $sth2->bindParam(':version', $o[1]);
         $sth2->bindParam(':name', $o[0]);
         $sth2->execute();
-        
     } catch(PDOException $e) {
         echo $e->getMessage();
         exit(1);
@@ -50,12 +49,15 @@ foreach($out as $o) {
 }
 
 /// Build packets
-$sth = $dbh->prepare("SELECT DISTINCT (SELECT name FROM os WHERE id = repos.os) AS os, (SELECT name FROM archs WHERE id = repos.arch) AS arch, (SELECT name FROM packets WHERE id = builds.packet) AS name, (SELECT GROUP_CONCAT(IF(`value` IS NOT NULL, CONCAT((SELECT name FROM options WHERE id = `option`), '=', `value`), (SELECT name FROM options WHERE id = `option`)) separator ' ') FROM builds_opts WHERE build = builds.id) AS opts, `key` FROM builds, repos WHERE repos.id = builds.repo AND `key` IS NOT NULL AND builded = 'no';");
+$sth = $dbh->prepare("SELECT DISTINCT (SELECT name FROM os WHERE id = repos.os) AS os, (SELECT name FROM archs WHERE id = repos.arch) AS arch, (SELECT name FROM packets WHERE id = builds.packet) AS name, (SELECT GROUP_CONCAT(IF(`value` IS NOT NULL, CONCAT((SELECT name FROM options WHERE id = `option`), '=', `value`), (SELECT name FROM options WHERE id = `option`)) separator ' ') FROM builds_opts WHERE build = builds.id) AS opts, `key`, (SELECT packets_list.`count` FROM packets_list WHERE packet_id = builds.packet) AS rpm_count FROM builds, repos WHERE repos.id = builds.repo AND `key` IS NOT NULL AND builded = 'no';");
 $sth->execute();
 
 if($sth->rowCount() > 0) {
     $i = 0;
     while($row = $sth->fetch()) {
+        exec('ls -l *.rpm | wc -l', $out);
+        print_r($out);
+        die();
         $exec = 'mock -r '.$row['os'].'-'.$row['arch'].' --define="'.$row['name'].'_param '.$row['opts'].'" '.$config['main']['src_path'].$row['name'].'-*.src.rpm';
         echo "\n\n\n".$i."\t".$exec."\n\n";
         exec($exec, $out, $status);
