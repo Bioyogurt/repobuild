@@ -38,6 +38,10 @@ foreach($out as $o) {
     $sth->bindParam(':name', $o[0]);
     try {
         $sth->execute();
+        $sth2 = $dbh->prepare("UPDATE builds SET builded = 'no' WHERE packet = (SELECT id FROM packets WHERE name = :name) AND version != :vertsion");
+        $sth2->bindParam(':version', $o[1]);
+        $sth2->bindParam(':name', $o[0]);
+        $sth2->execute();
     } catch(PDOException $e) {
         echo $e->getMessage();
         exit(1);
