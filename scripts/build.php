@@ -51,6 +51,7 @@ $sth->execute();
 if($sth->rowCount() > 0) {
     $i = 0;
     while($row = $sth->fetch()) {
+        
         $exec = 'mock -r '.$row['os'].'-'.$row['arch'].' --define="'.$row['name'].'_param '.$row['opts'].'" '.$config['main']['src_path'].$row['name'].'-*.src.rpm';
         echo "\n\n\n".$i."\t".$exec."\n\n";
         exec($exec, $out, $status);
@@ -89,7 +90,7 @@ if($sth->rowCount() > 0) {
         unset($out[0]);
         foreach($out as $o) {
             $o = explode(":", $o);
-            $sth2 = $sdh->prepare("UPDATE builds SET version = :version WHERE packet IN (SELECT id FROM packets WHERE name = :name)");
+            $sth2 = $dbh->prepare("UPDATE builds SET version = :version WHERE packet IN (SELECT id FROM packets WHERE name = :name)");
             $sth2->bindParam(':version', $o[1]);
             $sth2->bindParam(':name', $o[0]);
             try {
