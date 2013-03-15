@@ -7,7 +7,7 @@ exec("ps ax | grep ".$_SERVER['PHP_SELF']." | grep -v grep | wc -l", $out);
 if($out[0] != 1)
     die('Script already running...');
 
-require_once('../www/inc/config.php');
+require_once('/home/repobuild/share/www/inc/config.php');
 
 function dbcc() {
     global $dbh;
