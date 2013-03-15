@@ -54,9 +54,18 @@ foreach($out as $o) {
 }
 
 /// Build packets
-$sth = $dbh->prepare("SELECT DISTINCT ( SELECT `name` FROM os WHERE id = repos.os ) AS os, ( SELECT `name` FROM archs WHERE id = repos.arch ) AS arch, ( SELECT `name` FROM packets WHERE id = builds.packet ) AS `name`, ( SELECT GROUP_CONCAT( IF ( `value` IS NOT NULL, CONCAT(( SELECT `name` FROM `options` WHERE id = `option` ), '=', `value` ), ( SELECT `name` FROM `options` WHERE id = `option` )) SEPARATOR ' ' ) FROM builds_opts WHERE build = builds.id ) AS opts, `key`, ( SELECT packets_list.`count` FROM packets_list WHERE packet_id = builds.packet ) AS rpm_count, version AS ver1, ( SELECT packets.version FROM packets WHERE packets.id = builds.packet ) AS ver2 FROM builds, repos WHERE repos.id = builds.repo AND `key` IS NOT NULL AND builded = 'no';");
-$sth->execute();
-
+try {
+    $dbh->query("LOCK TABLES repos READ, builds READ, builds_opts READ");
+    $sth = $dbh->prepare("SELECT DISTINCT ( SELECT `name` FROM os WHERE id = repos.os ) AS os, ( SELECT `name` FROM archs WHERE id = repos.arch ) AS arch, ( SELECT `name` FROM packets WHERE id = builds.packet ) AS `name`, ( SELECT GROUP_CONCAT( IF ( `value` IS NOT NULL, CONCAT(( SELECT `name` FROM `options` WHERE id = `option` ), '=', `value` ), ( SELECT `name` FROM `options` WHERE id = `option` )) SEPARATOR ' ' ) FROM builds_opts WHERE build = builds.id ) AS opts, `key`, ( SELECT packets_list.`count` FROM packets_list WHERE packet_id = builds.packet ) AS rpm_count, version AS ver1, ( SELECT packets.version FROM packets WHERE packets.id = builds.packet ) AS ver2 FROM builds, repos WHERE repos.id = builds.repo AND `key` IS NOT NULL AND builded = 'no';");
+    $sth->execute();
+    $sth_hashes = $dbh->prepare("SELECT DISTINCT builds.`key` AS build, repos.`hash` AS repo FROM builds, repos WHERE repos.id = builds.repo AND builds.`key` IS NOT NULL AND builds.builded = 'no';");
+    $sth_hashes->execute();
+    $dbh->query("UNLOCK TABLES");
+} catch (PDOException $e) {
+    $dbh->query("UNLOCK TABLES");
+    echo $e->getMessage();
+    exit(1);
+}
 if($sth->rowCount() > 0) {
     $i = 0;
     while($row = $sth->fetch()) {
@@ -93,11 +102,9 @@ if($sth->rowCount() > 0) {
 
 
 /// Move builds to repos
-$sth = $dbh->prepare("SELECT DISTINCT builds.`key` AS build, repos.`hash` AS repo FROM builds, repos WHERE repos.id = builds.repo AND builds.`key` IS NOT NULL AND builds.builded = 'no';");
-$sth->execute();
 
-if($sth->rowCount() > 0) {
-    while($row = $sth->fetch()) {
+if($sth_hashes->rowCount() > 0) {
+    while($row = $sth_hashes->fetch()) {
         $repopath = $config['main']['repos_path'].$row['repo'];
         if(!is_dir($repopath))
             mkdir($repopath);
