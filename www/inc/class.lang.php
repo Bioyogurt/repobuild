@@ -9,7 +9,7 @@ class lang {
     }
     function get($key) {
         if(!isset($this->strings[$this->lang])) {
-            include 'inc'.DS.'langs'.$this->lang.'.php';
+            include 'inc'.DS.'langs'.DS.$this->lang.'.php';
             foreach($strings as $name => $string) {
                 $this->strings[$this->lang][$name] = $string;
             }
