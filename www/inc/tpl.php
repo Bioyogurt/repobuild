@@ -36,7 +36,7 @@ function tpl_foot($page=array()) {
 }
 
 function tpl_load($tpl, $page=array()) {
-    $content = file_get_contents('tpl/'.$tpl.'.tpl');
+    $content = file_get_contents('tpl'.DS.$tpl.'.tpl');
     foreach($page as $key => $value) {
         $content = str_replace('{%'.$key.'%}', $value, $content);
     }
