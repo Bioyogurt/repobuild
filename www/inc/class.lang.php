@@ -4,7 +4,7 @@ class lang {
     private $_strings = array();
     private $_lang;
     
-    function __construct($lang='ru') {
+    function __construct($lang='en') {
         $this->_lang = $lang;
     }
     function __get($key) {
