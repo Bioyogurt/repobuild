@@ -19,4 +19,7 @@ class lang {
         else
             die('Error with lang file');
     }
+    function set($lang) {
+        $this->_lang = $lang;
+    }
 }
