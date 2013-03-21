@@ -1,5 +1,5 @@
 <?php
 
-$strings = array(
-    'hello'         => 'привет'
+$lang = array(
+    'hello'         => 'привет',
 );

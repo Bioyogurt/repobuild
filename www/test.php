@@ -6,4 +6,4 @@ auth(false);
 
 $lang = new lang('ru');
 echo $lang->hello;
-var_dump($lang);
+

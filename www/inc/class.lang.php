@@ -10,10 +10,13 @@ class lang {
     function __get($key) {
         if(!isset($this->_strings[$this->_lang])) {
             include 'inc'.DS.'langs'.DS.$this->_lang.'.php';
-            foreach($strings as $name => $string) {
+            foreach($lang as $name => $string) {
                 $this->_strings[$this->_lang][$name] = $string;
             }
         }
-        return $this->_strings[$this->_lang][$key];
+        if(isset($this->_strings[$this->_lang][$key]))
+            return $this->_strings[$this->_lang][$key];
+        else
+            die('Error with lang file');
     }
 }
