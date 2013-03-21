@@ -11,7 +11,7 @@ function dbc() {
         if($config['db']['pool'] && !$config['main']['debug'])
             $params[PDO::ATTR_PERSISTENT] = true;
         if($config['main']['debug'])
-            $dbh = new PDOTester($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
+            $dbh = new pdotester($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
         else
             $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
         

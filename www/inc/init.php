@@ -16,7 +16,7 @@ include 'inc/functions.php';
 include 'inc/tpl.php';
 
 function __autoload($class_name) {
-    include 'inc/'.$class_name . '.class.php';
+    include 'inc/class.'.$class_name . '.php';
 }
 
 if(!in_array($config['db']['engine'], PDO::getAvailableDrivers()))
