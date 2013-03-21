@@ -21,6 +21,7 @@ function __autoload($class_name) {
     include 'inc'.DS.'class.'.$class_name . '.php';
 }
 
+$lang = new lang();
 if(isset($_COOKIE['lang'])) {
     $lang->set($_COOKIE['lang']);
 } else {
