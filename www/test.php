@@ -5,5 +5,5 @@ dbc();
 auth(false);
 
 $lang = new lang('ru');
-echo $lang->get('hello');
+echo $lang->hello;
 var_dump($lang);

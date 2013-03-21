@@ -5,9 +5,9 @@ class lang {
     private $lang;
     
     function __construct($lang='ru') {
-        echo $this->lang = $lang;
+        $this->lang = $lang;
     }
-    function get($key) {
+    function __get($key) {
         if(!isset($this->strings[$this->lang])) {
             include 'inc'.DS.'langs'.DS.$this->lang.'.php';
             foreach($strings as $name => $string) {
