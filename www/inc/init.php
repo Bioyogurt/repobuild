@@ -9,6 +9,8 @@ $dbg['time']['all'] = timer();
 
 ini_set('display_errors', 1);
 date_default_timezone_set('Asia/Novosibirsk');
+define('DS', DIRECTORY_SEPARATOR);
+
 session_start();
 
 include 'inc/config.php';
