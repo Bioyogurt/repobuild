@@ -4,7 +4,7 @@ $config['main']['sitename']     = 'Repobuild';
 $config['main']['auth_time']    = '3 months';
 $config['main']['charset']      = 'UTF-8';
 $config['main']['siteurl']      = 'http://repobuild.com';
-$config['main']['debug']        = true;
+$config['main']['debug']        = false;
 
 $config['db']['engine']         = 'mysql';
 $config['db']['hostname']       = 'mysql';

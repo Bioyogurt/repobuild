@@ -52,9 +52,9 @@ if($sth->rowCount() > 0) {
 		$opts = array();
 		while($row2 = $sth2->fetch()) {
 			if($row2['value'] <> "")
-				$opts[] = $_opts[$row2['option']]['name']."=".$row2['value'];
+				$opts[] = $_opts[$row2['option']]['display_name']."=".$row2['value'];
 			else
-				$opts[] = $_opts[$row2['option']]['name'];
+				$opts[] = $_opts[$row2['option']]['display_name'];
 
 			$opt[$row2['option']] = $row2;
 		}
@@ -75,7 +75,7 @@ if($sth->rowCount() > 0) {
 			$modals .= '<tr><td><input id="o'.$o['id'].'" name="opts[]" value="'.$o['id'].'" type="checkbox"';
 			if(isset($opt[$o['id']]))
 				$modals .= ' checked="checked"';
-			$modals .= ' /></td><td> <label for="o'.$o['id'].'"> '.$o['name'].'</label></td><td>';
+			$modals .= ' /></td><td> <label for="o'.$o['id'].'"> '.$o['display_name'].'</label></td><td>';
 
 			if($o['allow_custom'] == 'yes') {
 				if($o['custom'] <> "") {

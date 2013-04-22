@@ -31,14 +31,26 @@ if($sth->rowCount() > 0) {
 	$opts = $_POST['opts'];
 	$options = array();
 	foreach($opts as $o) {
-			if($_opts[$o]['custom'] <> "") {
-				if($_opts[$o]['allow_custom'] == 'yes')
-					$options[$o] = $_POST['v'.$o];
-				else
-					$options[$o] = $_opts[$o]['custom'];
-			} else {
-				$options[$o] = null;
+		if($_opts[$o]['custom'] <> "") {
+			if($_opts[$o]['allow_custom'] == 'yes')
+				$options[$o] = $_POST['v'.$o];
+			else
+				$options[$o] = $_opts[$o]['custom'];
+		} else {
+			$options[$o] = null;
+		}
+
+		if($_opts[$o]['deps'] <> "") {
+			$deps = explode(',', $_opts[$o]['deps']);
+			foreach($deps as $dep) {
+				if($_opts[$dep]['custom'] <> "") {
+					$options[$dep] = $_opts[$dep]['custom'];
+				} else {
+					$options[$dep] = null;
+				}
 			}
+		}
+
 	}
 
 	foreach($_opts as $key => $value) {
