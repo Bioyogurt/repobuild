@@ -159,23 +159,23 @@ if($sth_hashes->rowCount() > 0) {
             echo $e->getMessage();
             exit(1);
         }
+
+        // mark failed
+        $sth = $dbh->prepare("UPDATE builds SET failed = 'yes' WHERE `key` = :key");
+        foreach($failed as $key => $values) {
+            $sth->bindParam(':key', $key);
+            $sth->execute();
+        }
     }
 } else {
     echo "No build for repos\n";
 }
 
-// mark failed
-$sth = $dbh->prepare("UPDATE builds SET failed = 'yes' WHERE `key` = :key");
-foreach($failed as $key => $values) {
-    $sth->bindParam(':key', $key);
-    $sth->execute();
-}
-
 // mail failed
 if(count($failed) > 0) {
 	require_once "Mail.php";
-	$to = 'fds@alt.ru';
-	$bcc = 'weny@bk.ru';
+	$to = 'fds@repobuild.com';
+	$bcc = 'avs@repobuild.com';
 
 	$from = "no-reply@repobuild.com";
 	$subject = 'Repobuild: Fail to build';
@@ -215,9 +215,9 @@ if($config['main']['remove_unused_builds']) {
 	}
 
 	foreach($builds as $key => $dir) {
-    	if(is_dir($dir)) {
-        	echo 'Deleting '.$dir."\n";
-	        exec('rm -rf '.$dir);
-    	}
+            if(is_dir($dir)) {
+                    echo 'Deleting '.$dir."\n";
+                    exec('rm -rf '.$dir);
+            }
 	}
 }
