@@ -112,10 +112,10 @@ if($sth->rowCount() > 0) {
 					</div>';
 		$modals .= '<script>
                                                 $("#sel'.$row['packet'].'").click(function() {
-							$("#f'.$row['packet'].' input[type=\'checkbox\']").prop("checked", "checked");
+							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled").prop("checked", "checked");
 						});
                                                 $("#cls'.$row['packet'].'").click(function() {
-							$("#f'.$row['packet'].' input[type=\'checkbox\']").prop("checked", false);
+							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled").prop("checked", false);
 						});
 						$("#s'.$row['packet'].'").click(function() {
 							$("#f'.$row['packet'].'").submit();
