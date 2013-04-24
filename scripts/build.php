@@ -32,6 +32,7 @@ try {
     );
     $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
     $dbh->query('SET group_concat_max_len := @@max_allowed_packet');
+<<<<<<< HEAD
     register_shutdown_function('dbcc');
 } catch(PDOException $e) {
     echo $e->getMessage();
@@ -256,6 +257,8 @@ try {
     );
     $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
     $dbh->query('SET group_concat_max_len := @@max_allowed_packet');
+=======
+>>>>>>> 0ca9497c5ec9a2ed6e8bd5542d141b43fa9a7402
     register_shutdown_function('dbcc');
 } catch(PDOException $e) {
     echo $e->getMessage();
