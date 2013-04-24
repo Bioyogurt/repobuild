@@ -17,3 +17,5 @@ $config['db']['pool']           = true;
 $config['main']['repos_path']   = '/home/repobuild/share/repos/';
 $config['main']['builds_path']  = '/home/repobuild/share/builds/';
 $config['main']['src_path']     = '/home/repobuild/share/src/';
+$config['main']['remove_unused_builds'] = false;
+$config['main']['lockfile']     = '/tmp/repobuild.lock';

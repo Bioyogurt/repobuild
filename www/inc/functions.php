@@ -80,7 +80,7 @@ function load_vars() {
         $_arch[$row['id']] = $row;
     }
 
-    $sth = $dbh->query("SELECT * FROM options");
+    $sth = $dbh->query("SELECT * FROM options ORDER BY need, `default`, id");
     $_opts = array();
     while($row = $sth->fetch()) {
         $_opts[$row['id']] = $row;

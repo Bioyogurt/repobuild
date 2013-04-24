@@ -42,6 +42,13 @@ if($sth->rowCount() > 0) {
 
 		if($row['key'] == "")
 			$content .= " <span class=\"text-error\"> (please, edit build params)</span>";
+		elseif($row['failed'] == 'yes')
+			$content .= " <span class=\"text-error\"> (error on build)</span>";
+		elseif($row['builded'] == 'no')
+			$content .= " <span class=\"text-info\"> (in queue for build)</span>";
+		elseif($row['builded'] == 'yes')
+			$content .= " <span class=\"text-success\"> (builded)</span>";
+
 
         $content .= '</td><td width="1%"><button id="b'.$row['packet'].'" type="button" class="btn" data-toggle="button"><i class="icon-angle-down"></i></button></td>';
 
@@ -73,8 +80,10 @@ if($sth->rowCount() > 0) {
 		foreach($_opts as $o) {
                     if($o['packet'] == $row['packet']) {
 			$modals .= '<tr><td><input id="o'.$o['id'].'" name="opts[]" value="'.$o['id'].'" type="checkbox"';
-			if(isset($opt[$o['id']]))
+			if(isset($opt[$o['id']]) || (count($opts) == 0 && $o['default'] == 'yes') || $o['need'] == 'yes')
 				$modals .= ' checked="checked"';
+			if($o['need'] == 'yes')
+				$modals .= ' disabled="disabled"';
 			$modals .= ' /></td><td> <label for="o'.$o['id'].'"> '.$o['display_name'].'</label></td><td>';
 
 			if($o['allow_custom'] == 'yes') {

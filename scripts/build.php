@@ -2,17 +2,26 @@
 
 <?php
 
-exec("cd /home/repobuild");
-exec("ps ax | grep ".$_SERVER['PHP_SELF']." | grep -v grep | wc -l", $out);
-if($out[0] != 1)
-    die('Script already running...');
+chdir("/home/repobuild");
 
 require_once('/home/repobuild/share/www/inc/config.php');
+
+if(is_file($config['main']['lockfile']))
+    exit(0);
+else
+    touch($config['main']['lockfile']);
+
 
 function dbcc() {
     global $dbh;
     $dbh = null;
 }
+
+function ex() {
+    global $config;
+    unlink($config['main']['lockfile']);
+}
+register_shutdown_function('ex');
 
 try {
     $params = array (
@@ -56,9 +65,9 @@ foreach($out as $o) {
 /// Build packets
 try {
     $dbh->query("FLUSH TABLES WITH READ LOCK");
-    $sth = $dbh->prepare("SELECT DISTINCT ( SELECT `name` FROM os WHERE id = repos.os ) AS os, ( SELECT `name` FROM archs WHERE id = repos.arch ) AS arch, ( SELECT `name` FROM packets WHERE id = builds.packet ) AS `name`, ( SELECT GROUP_CONCAT( IF ( `value` IS NOT NULL, CONCAT(( SELECT `name` FROM `options` WHERE id = `option` ), '=', `value` ), ( SELECT `name` FROM `options` WHERE id = `option` )) SEPARATOR ' ' ) FROM builds_opts WHERE build = builds.id ) AS opts, `key`, ( SELECT packets_list.`count` FROM packets_list WHERE packet_id = builds.packet ) AS rpm_count, version AS ver1, ( SELECT packets.version FROM packets WHERE packets.id = builds.packet ) AS ver2 FROM builds, repos WHERE repos.id = builds.repo AND `key` IS NOT NULL AND builded = 'no';");
+    $sth = $dbh->prepare("SELECT DISTINCT ( SELECT `name` FROM os WHERE id = repos.os ) AS os, ( SELECT `name` FROM archs WHERE id = repos.arch ) AS arch, ( SELECT `name` FROM packets WHERE id = builds.packet ) AS `name`, ( SELECT GROUP_CONCAT( IF ( `value` IS NOT NULL, CONCAT(( SELECT `name` FROM `options` WHERE id = `option` ), '=', `value` ), ( SELECT `name` FROM `options` WHERE id = `option` )) SEPARATOR ' ' ) FROM builds_opts WHERE build = builds.id ) AS opts, `key`, ( SELECT packets_list.`count` FROM packets_list WHERE packet_id = builds.packet ) AS rpm_count, version AS ver1, ( SELECT packets.version FROM packets WHERE packets.id = builds.packet ) AS ver2 FROM builds, repos WHERE repos.id = builds.repo AND `key` IS NOT NULL AND builded = 'no' AND failed = 'no';");
     $sth->execute();
-    $sth_hashes = $dbh->prepare("SELECT DISTINCT builds.`key` AS build, repos.`hash` AS repo FROM builds, repos WHERE repos.id = builds.repo AND builds.`key` IS NOT NULL AND builds.builded = 'no';");
+    $sth_hashes = $dbh->prepare("SELECT DISTINCT builds.`key` AS build, repos.`hash` AS repo FROM builds, repos WHERE repos.id = builds.repo AND builds.`key` IS NOT NULL AND builds.builded = 'no' AND builds.failed = 'no';");
     $sth_hashes->execute();
     $dbh->query("UNLOCK TABLES");
 } catch (PDOException $e) {
@@ -66,6 +75,8 @@ try {
     echo $e->getMessage();
     exit(1);
 }
+
+$failed = array();
 if($sth->rowCount() > 0) {
     $i = 0;
     while($row = $sth->fetch()) {
@@ -84,7 +95,9 @@ if($sth->rowCount() > 0) {
             echo "\n\n\n".$i."\t".$exec."\n\n";
             exec($exec, $out, $status);
             if($status !== 0) {
-                die("ALARM! ALARM! ALARM!");
+//                die("ALARM! ALARM! ALARM!");
+			$failed[] = $row['key'];
+			continue;
             }
 
             $target_path = '/var/lib/mock/'.$row['os'].'-'.$row['arch'].'/result/';
@@ -97,7 +110,7 @@ if($sth->rowCount() > 0) {
         }
     }
 } else {
-    echo "No packets for build\n";
+//    echo "No packets for build\n";
 }
 
 
@@ -105,6 +118,11 @@ if($sth->rowCount() > 0) {
 
 if($sth_hashes->rowCount() > 0) {
     while($row = $sth_hashes->fetch()) {
+
+	if(in_array($row['build'], $failed)) {
+	    continue;
+	}
+
         $repopath = $config['main']['repos_path'].$row['repo'];
         if(!is_dir($repopath))
             mkdir($repopath);
@@ -133,7 +151,7 @@ if($sth_hashes->rowCount() > 0) {
         else
             exec('createrepo --update '.$repopath);
 
-        $sth2 = $dbh->prepare("UPDATE builds SET builded = 'yes' WHERE `key` = :key");
+        $sth2 = $dbh->prepare("UPDATE builds SET builded = 'yes', failed = 'no' WHERE `key` = :key");
         $sth2->bindParam(':key', $row['build']);
         try {
             $sth2->execute();
@@ -143,28 +161,56 @@ if($sth_hashes->rowCount() > 0) {
         }
     }
 } else {
-    echo "No build for repos\n";
+//    echo "No build for repos\n";
+}
+
+// mark failed
+$sth = $dbh->prepare("UPDATE builds SET failed = 'yes' WHERE `key` = :key");
+foreach($failed as $key) {
+    $sth->bindParam(':key', $key);
+    $sth->execute();
+}
+
+// mail failed
+if(count($failed) > 0) {
+	require_once "Mail.php";
+	$to = 'fds@alt.ru';
+	$bcc = 'weny@bk.ru';
+
+	$from = "no-reply@repobuild.com";
+	$subject = 'Repobuild: Fail to build';
+	$body = 'Failed builds: '.implode(', ', $failed);
+
+	$host = "smtp.yandex.ru";
+	$username = "no-reply@repobuild.com";
+	$password = "q1w2e3r4t5y6";
+
+	$headers = array ('From' => $from, 'To' => $to, 'Subject' => $subject);
+	$smtp = Mail::factory('smtp', array ('host' => $host, 'auth' => true, 'username' => $username, 'password' => $password ));
+	$mail = $smtp->send($to.', '.$bcc, $headers, $body);
 }
 
 //remove unused builds
-$builds = array();
-foreach (glob($config['main']['builds_path']."*") as $filename) {
-    if(is_dir($filename))
-        $builds[end(explode('/', $filename))] = $filename;
-}
+if($config['main']['remove_unused_builds']) {
+	$builds = array();
+	foreach (glob($config['main']['builds_path']."*") as $filename) {
+    	if(is_dir($filename))
+        	$builds[end(explode('/', $filename))] = $filename;
+	}
 
-$sth = $dbh->prepare('SELECT `key` FROM builds');
-$sth->execute();
+	$sth = $dbh->prepare('SELECT `key` FROM builds');
+	$sth->execute();
 
-if($sth->rowCount() > 0) {
-    while($build = $sth->fetch()) {
-        unset($builds[$build['key']]);
-    }
-}
+	if($sth->rowCount() > 0) {
+    	while($build = $sth->fetch()) {
+        	unset($builds[$build['key']]);
+	    }
+	}
 
-foreach($builds as $key => $dir) {
-    if(is_dir($dir)) {
-        echo 'Deleting '.$dir."\n";
-        exec('rm -rf '.$dir);
-    }
+	foreach($builds as $key => $dir) {
+    	if(is_dir($dir)) {
+        	echo 'Deleting '.$dir."\n";
+	        exec('rm -rf '.$dir);
+    	}
+	}
 }
