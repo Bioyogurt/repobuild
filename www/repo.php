@@ -103,14 +103,23 @@ if($sth->rowCount() > 0) {
 		}
 		$modals .= '</table></form>';
 		$modals .= '</div>
-						<div class="modal-footer">
-                                                        <button id="sel'.$row['packet'].'" class="btn">Select All</button>
+						<div class="modal-footer">';
+		$modals .= '<input id="filter'.$row['packet'].'" type="text" style="float: left;" placeholder="filter" />';
+		$modals .= '<button id="sel'.$row['packet'].'" class="btn">Select All</button>
                                                         <button id="cls'.$row['packet'].'" class="btn">Clean All</button>
 							<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 							<button id="s'.$row['packet'].'" class="btn btn-primary">Save</button>
 						</div>
 					</div>';
 		$modals .= '<script>
+						$("#filter'.$row['packet'].'").keyup(function() {
+							if($("#filter'.$row['packet'].'").val().length > 0) {
+								$("#f'.$row['packet'].' label:contains(\'"+$("#filter'.$row['packet'].'").val()+"\')").parent().parent().show();
+								$("#f'.$row['packet'].' label:not(:contains(\'"+$("#filter'.$row['packet'].'").val()+"\'))").parent().parent().hide();
+							} else {
+							    $("#f'.$row['packet'].' label").parent().parent().show();
+							}
+						});
 						$(".lbl").tooltip();
                                                 $("#sel'.$row['packet'].'").click(function() {
 							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled").prop("checked", "checked");
