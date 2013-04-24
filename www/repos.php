@@ -22,8 +22,10 @@ if($sth->rowCount() > 0) {
         $content .= "<tr>";
         $content .= '<td width="1%"><div class="btn-group">
                             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                            <li><a tabindex="-1" href="/takedeleterepo.php?id='.$row['id'].'"><i class="icon-remove"></i> Delete</a></li>
+                            <ul class="dropdown-menu">';
+        if($USER['class'] > 1)
+            $content .= '<li><a tabindex="-1" href="/repofile.php?key='.$row['hash'].'"><i class="icon-file-alt"></i> Repofile</a></li><li class="divider"></li>';
+        $content .= '<li><a tabindex="-1" href="/takedeleterepo.php?id='.$row['id'].'"><i class="icon-remove"></i> Delete</a></li>
                         </ul></div></td>';
         $content .= "<td><b><a href=\"repo.php?id=".$row['id']."\">".$row['name']."</a></b></td>";
         $content .= "<td>".$_os[$row['os']]['display_name']."</td>";
@@ -32,7 +34,7 @@ if($sth->rowCount() > 0) {
 		if($cnt == 0)
 			$content .= "<td><span class=\"text-error\">(please, add packets to repo)</span></td>";
         elseif(is_dir("../../share/repos/".$row['hash']))
-            $content .= "<td><a href='http://repo.repobuild.com/".$row['hash']."' target='_blank'>http://repo.repobuild.com/".$row['hash']."</a></td>";
+            $content .= "<td>".($USER['class'] > 1 ? "<a href=repofile.php?key=".$row['hash']." class='btn btn-mini btn-success'><i class='icon-file-alt'></i></a> " : "")."<a href='http://repo.repobuild.com/".$row['hash']."' target='_blank'>http://repo.repobuild.com/".$row['hash']."</a></td>";
         else
             $content .= "<td><p class=\"muted\"><i class=\"icon-refresh icon-spin\"></i> creating..</p></td>";
     }
