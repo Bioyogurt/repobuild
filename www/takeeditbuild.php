@@ -79,7 +79,7 @@ if($sth->rowCount() > 0) {
                 $sth->bindParam(':value', $value);
                 $sth->execute();
             }
-            $sth = $dbh->prepare("UPDATE builds SET `key` = :key, builded = 'no' WHERE id = :buildid");
+            $sth = $dbh->prepare("UPDATE builds SET `key` = :key, builded = 'no', failed = 'no' WHERE id = :buildid");
             $sth->bindParam(':key', $hash);
             $sth->bindParam(':buildid', $row['id']);
             $sth->execute();
