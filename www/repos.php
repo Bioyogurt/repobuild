@@ -8,7 +8,7 @@ load_vars();
 $page['title'] = 'Repositories on Repobuild';
 $content = "";
 
-$sth = $dbh->prepare("SELECT * FROM repos WHERE user = :userid");
+$sth = $dbh->prepare("SELECT * FROM repos WHERE user = :userid ORDER BY id");
 $sth->bindParam(':userid', $USER['id']);
 $sth->execute();
 if($sth->rowCount() > 0) {

@@ -45,12 +45,12 @@ if($sth->rowCount() > 0) {
 		elseif($row['failed'] == 'yes')
 			$content .= " <span class=\"text-error\"> (error on build)</span>";
 		elseif($row['builded'] == 'no')
-			$content .= " <span class=\"text-info\"> (in queue for build)</span>";
+			$content .= " <span class=\"text-info\"> (in queue for build".($row['version'] != $_pkgs[$row['packet']]['version'] ? ' '.$_pkgs[$row['packet']]['version'] : '').")</span>";
 		elseif($row['builded'] == 'yes')
 			$content .= " <span class=\"text-success\"> (builded)</span>";
 
 
-        $content .= '</td><td width="1%"><button id="b'.$row['packet'].'" type="button" class="btn" data-toggle="button"><i class="icon-angle-down"></i></button></td>';
+        $content .= '<br /><small class="muted">'.$_pkgs[$row['packet']]['description'].'</small></td><td width="1%"><button id="b'.$row['packet'].'" type="button" class="btn" data-toggle="button"><i class="icon-angle-down"></i></button></td>';
 
 		$sth2 = $dbh->prepare("SELECT * FROM builds_opts WHERE build = :buildid");
                 $sth2->bindParam(':buildid', $row['id']);
@@ -84,7 +84,7 @@ if($sth->rowCount() > 0) {
 				$modals .= ' checked="checked"';
 			if($o['need'] == 'yes')
 				$modals .= ' disabled="disabled"';
-			$modals .= ' /></td><td> <label for="o'.$o['id'].'"> '.$o['display_name'].'</label></td><td>';
+			$modals .= ' /></td><td> <label for="o'.$o['id'].'"> <span class="lbl" data-toggle="tooltip" title="'.$o['description'].'">'.$o['display_name'].'</span></label></td><td>';
 
 			if($o['allow_custom'] == 'yes') {
 				if($o['custom'] <> "") {
@@ -111,6 +111,7 @@ if($sth->rowCount() > 0) {
 						</div>
 					</div>';
 		$modals .= '<script>
+						$(".lbl").tooltip();
                                                 $("#sel'.$row['packet'].'").click(function() {
 							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled").prop("checked", "checked");
 						});
