@@ -121,6 +121,7 @@ if($sth->rowCount() > 0) {
 							}
 						});
 						$(".lbl").tooltip();
+						$("#m'.$row['packet'].'").on("shown", function() {$("#filter'.$row['packet'].'").focus();})
                                                 $("#sel'.$row['packet'].'").click(function() {
 							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled:visible").prop("checked", "checked");
 						});
