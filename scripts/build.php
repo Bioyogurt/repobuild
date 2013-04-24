@@ -95,7 +95,6 @@ if($sth->rowCount() > 0) {
             echo "\n\n\n".$i."\t".$exec."\n\n";
             exec($exec, $out, $status);
             if($status !== 0) {
-//                die("ALARM! ALARM! ALARM!");
 			$failed[] = $row['key'];
 			continue;
             }
@@ -110,12 +109,11 @@ if($sth->rowCount() > 0) {
         }
     }
 } else {
-//    echo "No packets for build\n";
+    echo "No packets for build\n";
 }
 
 
 /// Move builds to repos
-
 if($sth_hashes->rowCount() > 0) {
     while($row = $sth_hashes->fetch()) {
 
@@ -161,7 +159,7 @@ if($sth_hashes->rowCount() > 0) {
         }
     }
 } else {
-//    echo "No build for repos\n";
+    echo "No build for repos\n";
 }
 
 // mark failed
