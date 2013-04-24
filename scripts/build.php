@@ -95,7 +95,9 @@ if($sth->rowCount() > 0) {
             echo "\n\n\n".$i."\t".$exec."\n\n";
             exec($exec, $out, $status);
             if($status !== 0) {
-			$failed[] = $row['key'];
+			$failed[$row['key']]['build'] = file_get_contents('/var/lib/mock/'.$row['os'].'-'.$row['arch'].'/result/build.log');
+                        $failed[$row['key']]['root'] = file_get_contents('/var/lib/mock/'.$row['os'].'-'.$row['arch'].'/result/root.log');
+                        $failed[$row['key']]['state'] = file_get_contents('/var/lib/mock/'.$row['os'].'-'.$row['arch'].'/result/state.log');
 			continue;
             }
 
@@ -164,7 +166,7 @@ if($sth_hashes->rowCount() > 0) {
 
 // mark failed
 $sth = $dbh->prepare("UPDATE builds SET failed = 'yes' WHERE `key` = :key");
-foreach($failed as $key) {
+foreach($failed as $key => $values) {
     $sth->bindParam(':key', $key);
     $sth->execute();
 }
@@ -177,7 +179,14 @@ if(count($failed) > 0) {
 
 	$from = "no-reply@repobuild.com";
 	$subject = 'Repobuild: Fail to build';
-	$body = 'Failed builds: '.implode(', ', $failed);
+	$body = 'Failed builds: '.implode(', ', $failed)."\n\n\n";
+
+        foreach($failed as $key => $values) {
+            $body .= 'Logs for '.$key."\n";
+            $body .= 'state.log:'.$values['state']."\n\n";
+            $body .= 'root.log:'.$values['root']."\n\n";
+            $body .= 'build.log:'.$values['build']."\n\n";
+        }
 
 	$host = "smtp.yandex.ru";
 	$username = "no-reply@repobuild.com";
