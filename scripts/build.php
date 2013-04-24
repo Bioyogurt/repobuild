@@ -179,13 +179,13 @@ if(count($failed) > 0) {
 
 	$from = 'no-reply@repobuild.com';
 	$subject = 'Repobuild: Fail to build';
-	$body = 'Failed builds: '.implode(', ', $failed)."\n\n\n";
+	$body = 'Failed builds: '.implode(', ', array_keys($failed))."\n\n";
 
         foreach($failed as $key => $values) {
-            $body .= 'Logs for '.$key."\n";
-            $body .= 'state.log:'.$values['state']."\n\n";
-            $body .= 'root.log:'.$values['root']."\n\n";
-            $body .= 'build.log:'.$values['build']."\n\n";
+            $body .= "\n\nLogs for ".$key."\n\n";
+            $body .= "state.log:\n".$values['state']."\n\n";
+            $body .= "root.log:\n".$values['root']."\n\n";
+            $body .= "build.log:\n".$values['build']."\n\n";
         }
 
 	$host = 'smtp.yandex.ru';
