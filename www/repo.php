@@ -122,10 +122,10 @@ if($sth->rowCount() > 0) {
 						});
 						$(".lbl").tooltip();
                                                 $("#sel'.$row['packet'].'").click(function() {
-							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled").prop("checked", "checked");
+							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled:visible").prop("checked", "checked");
 						});
                                                 $("#cls'.$row['packet'].'").click(function() {
-							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled").prop("checked", false);
+							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled:visible").prop("checked", false);
 						});
 						$("#s'.$row['packet'].'").click(function() {
 							$("#f'.$row['packet'].'").submit();
