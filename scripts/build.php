@@ -2,7 +2,7 @@
 
 <?php
 
-chdir("/home/repobuild");
+chdir('/home/repobuild');
 
 require_once('/home/repobuild/share/www/inc/config.php');
 
@@ -30,7 +30,7 @@ try {
         PDO::ATTR_PERSISTENT            => true
     );
     $dbh = new PDO($config['db']['engine'].':host='.$config['db']['hostname'].';dbname='.$config['db']['database'].';charset='.$config['db']['charset'], $config['db']['username'], $config['db']['password'], $params);
-    $dbh->query("SET group_concat_max_len := @@max_allowed_packet");
+    $dbh->query('SET group_concat_max_len := @@max_allowed_packet');
     register_shutdown_function('dbcc');
 } catch(PDOException $e) {
     echo $e->getMessage();
@@ -171,17 +171,17 @@ foreach($failed as $key) {
 
 // mail failed
 if(count($failed) > 0) {
-	require_once "Mail.php";
-	$to = 'fds@alt.ru';
-	$bcc = 'weny@bk.ru';
+	require_once 'Mail.php';
+	$to = 'fds@repobuild.com';
+	$bcc = 'avs@repobuild.com';
 
-	$from = "no-reply@repobuild.com";
+	$from = 'no-reply@repobuild.com';
 	$subject = 'Repobuild: Fail to build';
 	$body = 'Failed builds: '.implode(', ', $failed);
 
-	$host = "smtp.yandex.ru";
-	$username = "no-reply@repobuild.com";
-	$password = "q1w2e3r4t5y6";
+	$host = 'smtp.yandex.ru';
+	$username = 'no-reply@repobuild.com';
+	$password = 'q1w2e3r4t5y6';
 
 	$headers = array ('From' => $from, 'To' => $to, 'Subject' => $subject);
 	$smtp = Mail::factory('smtp', array ('host' => $host, 'auth' => true, 'username' => $username, 'password' => $password ));
@@ -191,7 +191,7 @@ if(count($failed) > 0) {
 //remove unused builds
 if($config['main']['remove_unused_builds']) {
 	$builds = array();
-	foreach (glob($config['main']['builds_path']."*") as $filename) {
+	foreach (glob($config['main']['builds_path'].'*') as $filename) {
     	if(is_dir($filename))
         	$builds[end(explode('/', $filename))] = $filename;
 	}
