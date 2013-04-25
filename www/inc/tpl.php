@@ -63,11 +63,12 @@ function tpl_mainmenu() {
     $menu = array();
 //    $menu[] = array('Home', '/index.php', 'icon-home');
 
-    if(logged())
+    if(logged()) {
         $menu[] = array('Repos', '/repos.php', 'icon-hdd');
+        $menu[] = array('Feedback', '/feedback.php', 'icon-comments-alt');
+    }
 
-    $menu[] = array('Blog', '/blog.php', 'icon-rss');
-    $menu[] = array('Help', '/help.php', 'icon-comments-alt');
+//    $menu[] = array('Blog', '/blog.php', 'icon-rss');
 
     $return = '';
 

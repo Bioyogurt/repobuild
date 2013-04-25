@@ -84,7 +84,7 @@ if($sth->rowCount() > 0) {
 				$modals .= ' checked="checked"';
 			if($o['need'] == 'yes')
 				$modals .= ' disabled="disabled"';
-			$modals .= ' /></td><td> <label for="o'.$o['id'].'"> <span class="lbl" data-toggle="tooltip" title="'.$o['description'].'">'.$o['display_name'].'</span></label></td><td>';
+			$modals .= ' /></td><td> <label for="o'.$o['id'].'"> <span class="tip" title="'.$o['description'].'">'.$o['display_name'].'</span></label></td><td>';
 
 			if($o['allow_custom'] == 'yes') {
 				if($o['custom'] <> "") {
@@ -104,7 +104,7 @@ if($sth->rowCount() > 0) {
 		$modals .= '</table></form>';
 		$modals .= '</div>
 						<div class="modal-footer">';
-		$modals .= '<input id="filter'.$row['packet'].'" type="text" style="float: left;" placeholder="filter" />';
+		$modals .= '<div style="float:left;"><input id="filter'.$row['packet'].'" type="text" placeholder="filter" /><i id="clear'.$row['packet'].'" class="icon-remove-sign icon-large" style="cursor: pointer; position: relative; left: -22px; top: -4px; color: #aaa;"></i></div>';
 		$modals .= '<button id="sel'.$row['packet'].'" class="btn">Select All</button>
                                                         <button id="cls'.$row['packet'].'" class="btn">Clean All</button>
 							<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -112,6 +112,11 @@ if($sth->rowCount() > 0) {
 						</div>
 					</div>';
 		$modals .= '<script>
+						$("#clear'.$row['packet'].'").click(function() {
+							$("#filter'.$row['packet'].'").val("");
+							$("#filter'.$row['packet'].'").trigger("keyup");
+							$("#filter'.$row['packet'].'").focus();
+						});
 						$("#filter'.$row['packet'].'").keyup(function() {
 							if($("#filter'.$row['packet'].'").val().length > 0) {
 								$("#f'.$row['packet'].' label:contains(\'"+$("#filter'.$row['packet'].'").val()+"\')").parent().parent().show();
@@ -120,7 +125,7 @@ if($sth->rowCount() > 0) {
 							    $("#f'.$row['packet'].' label").parent().parent().show();
 							}
 						});
-						$(".lbl").tooltip();
+						$(".tip").tooltip({"placement":"right"});
 						$("#m'.$row['packet'].'").on("shown", function() {$("#filter'.$row['packet'].'").focus();})
                                                 $("#sel'.$row['packet'].'").click(function() {
 							$("#f'.$row['packet'].' input[type=\'checkbox\']:enabled:visible").prop("checked", "checked");

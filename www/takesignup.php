@@ -33,7 +33,7 @@ if(v_str($_POST['username']) && v_str($_POST['password']) && v_str($_POST['email
 
 
     try {
-        $sth = $dbh->prepare("INSERT INTO users (username, password,email) VALUES (:username, :password, :email)");
+        $sth = $dbh->prepare("INSERT INTO users (username, password,email,added) VALUES (:username, :password, :email, NOW())");
         $sth->bindParam(':username', $username);
         $sth->bindParam(':password', md5($password));
         $sth->bindParam(':email', $email);

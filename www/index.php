@@ -17,5 +17,5 @@ if(isset($USER['id'])) {
 
 $page['title'] = 'Repobuild';
 tpl_head($page);
-tpl_hero('Welcome to '.$config['main']['sitename'].'!', 'This site will help you create your own repository.','Create Repo', '/create.php', 'icon-plus');
+tpl_hero('Welcome to '.$config['main']['sitename'].'!', 'This site will help you create your own repository.<br /><br />For test use login "user" and password "user".<br /><br />','Create Repo', '/create.php', 'icon-plus');
 tpl_foot();

@@ -15,7 +15,7 @@ if($sth->rowCount() > 0) {
     $content .= "<table class=\"table table-hover\">";
     $content .= "<thead><tr><th></th><th>name</th><th>os</th><th>arch</th><th>url</th></tr></thead><tbody>";
     while($row = $sth->fetch()) {
-		$sth2 = $dbh->prepare("SELECT COUNT(*) FROM builds WHERE repo = :repoid");
+		$sth2 = $dbh->prepare("SELECT COUNT(*) FROM builds WHERE repo = :repoid AND builded = 'yes'");
                 $sth2->bindParam(':repoid', $row['id']);
                 $sth2->execute();
                 $cnt = $sth2->fetchColumn();
@@ -23,7 +23,7 @@ if($sth->rowCount() > 0) {
         $content .= '<td width="1%"><div class="btn-group">
                             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog"></i> <span class="caret"></span></a>
                             <ul class="dropdown-menu">';
-        if($USER['class'] > 1)
+        if($cnt != 0)
             $content .= '<li><a tabindex="-1" href="/repofile.php?key='.$row['hash'].'"><i class="icon-file-alt"></i> Repofile</a></li><li class="divider"></li>';
         $content .= '<li><a tabindex="-1" href="/takedeleterepo.php?id='.$row['id'].'"><i class="icon-remove"></i> Delete</a></li>
                         </ul></div></td>';
@@ -34,16 +34,16 @@ if($sth->rowCount() > 0) {
 		if($cnt == 0)
 			$content .= "<td><span class=\"text-error\">(please, add packets to repo)</span></td>";
         elseif(is_dir("../../share/repos/".$row['hash']))
-            $content .= "<td>".($USER['class'] > 1 ? "<a href=repofile.php?key=".$row['hash']." class='btn btn-mini btn-success'><i class='icon-file-alt'></i></a> " : "")."<a href='http://repo.repobuild.com/".$row['hash']."' target='_blank'>http://repo.repobuild.com/".$row['hash']."</a></td>";
+            $content .= "<td><a href=repofile.php?key=".$row['hash']." class='btn btn-mini btn-success tip' title='repofile'><i class='icon-file-alt'></i></a> <a href='http://repo.repobuild.com/".$row['hash']."' target='_blank'>http://repo.repobuild.com/".$row['hash']."</a></td>";
         else
-            $content .= "<td><p class=\"muted\"><i class=\"icon-refresh icon-spin\"></i> creating..</p></td>";
+            $content .= "<td><p class=\"muted\">not created yet..</p></td>";
     }
     $content .= "</tr></tbody></table>\n";
 } else
     $content .= "Repos not exists<br /><br />";
 
 $content .= '<a class="btn btn-primary" href="/create.php"><i class="icon-plus"></i> Create Repo</a>';
-
+$content .= '<script>$(".tip").tooltip({"placement":"right"});</script>';
 tpl_head($page);
 echo $content;
 tpl_foot();
