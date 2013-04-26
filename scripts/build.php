@@ -174,6 +174,7 @@ if($sth_hashes->rowCount() > 0) {
 // mail failed
 if(count($failed) > 0) {
 	require_once 'Mail.php';
+
 	$to = 'fds@repobuild.com';
 	$bcc = 'avs@repobuild.com';
 

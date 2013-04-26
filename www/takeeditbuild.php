@@ -30,6 +30,9 @@ if($sth->rowCount() > 0) {
 	$row = $sth->fetch();
 	$opts = $_POST['opts'];
 	$options = array();
+	$deps = array();
+
+	// Get posted options
 	foreach($opts as $o) {
 		if($_opts[$o]['custom'] <> "") {
 			if($_opts[$o]['allow_custom'] == 'yes')
@@ -39,20 +42,9 @@ if($sth->rowCount() > 0) {
 		} else {
 			$options[$o] = null;
 		}
-
-		if($_opts[$o]['deps'] <> "") {
-			$deps = explode(',', $_opts[$o]['deps']);
-			foreach($deps as $dep) {
-				if($_opts[$dep]['custom'] <> "") {
-					$options[$dep] = $_opts[$dep]['custom'];
-				} else {
-					$options[$dep] = null;
-				}
-			}
-		}
-
 	}
 
+	// Add needed options
 	foreach($_opts as $key => $value) {
 		if($value['packet'] == $packet && $value['need'] == "yes" && !in_array($key, array_keys($options))) {
 			if($value['custom'] <> "")
@@ -60,6 +52,48 @@ if($sth->rowCount() > 0) {
 			else
 				$options[$key] = null;
 		}
+	}
+
+	// Find deps
+	$ndeps = array_keys($options);
+	do {
+	    $i = 0;
+	    foreach($ndeps as $key) {
+		if($_opts[$key]['deps'] <> "") {
+		    $tmp = explode(',', $_opts[$key]['deps']);
+		    foreach($tmp as $dep) {
+			if(!in_array($dep, $deps) && !in_array(array_keys($options))) {
+			    $deps[] = $dep;
+			    $i++;
+			}
+		    }
+		}
+	    }
+	    $ndeps = $deps;
+	} while ($i > 0);
+
+
+	// Add deps
+	array_unique($deps);
+	foreach($deps as $dep) {
+		if($_opts[$dep]['custom'] <> "") {
+			$options[$dep] = $_opts[$dep]['custom'];
+		} else {
+			$options[$dep] = null;
+		}
+	}
+
+	// Sort by priority
+	$priority = array();
+	foreach($options as $key => $value) {
+	    $priority[$_opts[$key]['priority']][$key] = $value;
+	}
+	ksort($priority);
+	$options = array();
+	foreach($priority as $arr) {
+	    foreach($arr as $key => $value) {
+		$options[$key] = $value;
+	    }
 	}
 
 	$opts = array();

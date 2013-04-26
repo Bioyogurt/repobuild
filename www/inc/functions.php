@@ -92,3 +92,36 @@ function load_vars() {
         $_pkgs[$row['id']] = $row;
     }
 }
+
+function send_mail($to, $subject, $body) {
+        require_once 'Mail.php';
+        require_once 'Mail/mime.php';
+
+        $host = 'smtp.yandex.ru';
+        $username = 'no-reply@repobuild.com';
+        $password = 'q1w2e3r4t5y6';
+
+	$from = 'no-reply@repobuild.com';
+
+        $headers = array(
+                        'From' => $from,
+                        'To' => $to[0],
+                        'Subject' => $subject,
+                        'Content-Type' => 'text/plain; charset=UTF-8'
+                    );
+        $mime_params = array(
+                        'text_encoding' => '7bit',
+                        'text_charset'  => 'UTF-8',
+                        'html_charset'  => 'UTF-8',
+                        'head_charset'  => 'UTF-8'
+                    );
+
+        $mime = new Mail_mime();
+        $mime->setTXTBody($body);
+
+        $body = $mime->get($mime_params);
+        $headers = $mime->headers($headers);
+
+        $smtp = Mail::factory('smtp', array ('host' => $host, 'auth' => true, 'username' => $username, 'password' => $password ));
+        $mail = $smtp->send(implode(', ',$to), $headers, $body);
+}
