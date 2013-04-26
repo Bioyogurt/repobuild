@@ -30,7 +30,6 @@ if($sth->rowCount() > 0) {
 	$row = $sth->fetch();
 	$opts = $_POST['opts'];
 	$options = array();
-	$deps = array();
 
 	// Get posted options
 	foreach($opts as $o) {
@@ -55,6 +54,7 @@ if($sth->rowCount() > 0) {
 	}
 
 	// Find deps
+	$deps = array();
 	$ndeps = array_keys($options);
 	do {
 	    $i = 0;
