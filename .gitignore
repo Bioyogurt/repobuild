@@ -3,6 +3,6 @@ builds/
 logs/
 mirror/
 repos/
-src/
+#src/
 nbproject/
 deps/
